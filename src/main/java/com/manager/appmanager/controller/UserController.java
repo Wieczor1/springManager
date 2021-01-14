@@ -3,12 +3,16 @@ package com.manager.appmanager.controller;
 import com.manager.appmanager.exception.NotFoundException;
 import com.manager.appmanager.model.App;
 import com.manager.appmanager.model.User;
+import com.manager.appmanager.model.UserFile;
 import com.manager.appmanager.repository.AppRepository;
 import com.manager.appmanager.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin("http://localhost:4200")
@@ -26,6 +30,18 @@ public class UserController {
     @GetMapping("/users")
     List<User> allUsers(){
         return repository.findAll();
+    }
+
+    @GetMapping("/users/apps/{appId}")
+    List<User> allUsers(@PathVariable int appId) throws NotFoundException {
+        App app = appRepository.findById(appId).orElseThrow(() -> new NotFoundException(appId));
+        return new ArrayList<>(app.getAppUsers());
+    }
+
+    @GetMapping("/users/{userId}/files")
+    List<UserFile> allUsersApps(@PathVariable int userId) throws NotFoundException {
+        User user = repository.findById(userId).orElseThrow(() -> new NotFoundException(userId));
+        return new ArrayList<>(user.getUserFiles());
     }
 
     @GetMapping("/users/{id}")
@@ -55,12 +71,22 @@ public class UserController {
          repository.deleteById(id);
     }
 
-    @PostMapping("/users/{userId}/apps/{appId}")
+    @PostMapping("/users/{userId}/app/{appId}")
     void addAppToUser(@PathVariable int userId, @PathVariable int appId) throws NotFoundException {
 
         User user = repository.findById(userId).orElseThrow(() -> new NotFoundException(userId));
         App appToAdd = appRepository.findById(appId).orElseThrow(() -> new NotFoundException(userId));
         user.addApp(appToAdd);
+        repository.save(user);
+    }
+
+
+    @DeleteMapping("/users/{userId}/app/{appId}")
+    void removeAppFromUser(@PathVariable int userId, @PathVariable int appId) throws NotFoundException {
+
+        User user = repository.findById(userId).orElseThrow(() -> new NotFoundException(userId));
+        App appToAdd = appRepository.findById(appId).orElseThrow(() -> new NotFoundException(userId));
+        user.removeApp(appToAdd);
         repository.save(user);
     }
 

@@ -1,9 +1,9 @@
 package com.manager.appmanager.repository;
 
-import com.manager.appmanager.model.App;
+import com.manager.appmanager.model.ImageData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AppRepository extends JpaRepository<App, Integer> {
+public interface ImageDataRepository extends JpaRepository<ImageData, Integer> {
 }
