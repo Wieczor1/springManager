@@ -24,7 +24,7 @@ public class ImageDataService {
         imageData.setImageUrl(url);
 
         app.getImages().add(imageData);
-        imageDataRepository.save(imageData);
+        appRepository.save(app);
 
     }    public void editImage(int imageId, String url) throws NotFoundException {
         ImageData imageData = imageDataRepository.findById(imageId).orElseThrow(() -> new NotFoundException(imageId));

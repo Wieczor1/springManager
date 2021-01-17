@@ -6,22 +6,24 @@ import com.manager.appmanager.model.User;
 import com.manager.appmanager.model.UserFile;
 import com.manager.appmanager.repository.AppRepository;
 import com.manager.appmanager.repository.UserRepository;
+import com.manager.appmanager.service.EmailService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin("http://localhost:4200")
 public class UserController {
 
     private final AppRepository appRepository;
+    private final EmailService emailService;
 
-    public UserController(AppRepository appRepository, UserRepository repository) {
+    public UserController(AppRepository appRepository, EmailService emailService, UserRepository repository) {
         this.appRepository = appRepository;
+        this.emailService = emailService;
         this.repository = repository;
     }
 
@@ -50,8 +52,11 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    User newUser(@Valid @RequestBody User newUser){
-        return repository.save(newUser);
+    User newUser(@Valid @RequestBody User newUser) throws MessagingException {
+        User user = repository.save(newUser);
+        emailService.sendMail(newUser.getEmail(), "Registration", "Hello, " + newUser.getUsername() +
+                ", you have registered!", false);
+        return user;
     }
 
     @PutMapping("/users/{id}")

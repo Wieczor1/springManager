@@ -19,7 +19,11 @@ public interface StorageService {
 
 	Resource loadAsResource(String filename);
 
+	Resource exportAsResource();
+
 	void deleteAll();
+
+	void deleteAllExported();
 
 	void delete(String filename) throws IOException;
 

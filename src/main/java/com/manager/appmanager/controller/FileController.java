@@ -5,9 +5,7 @@ import com.manager.appmanager.model.ImageData;
 import com.manager.appmanager.model.UserFile;
 import com.manager.appmanager.repository.ImageDataRepository;
 import com.manager.appmanager.repository.UserFileRepository;
-import com.manager.appmanager.service.ImageDataService;
-import com.manager.appmanager.service.StorageService;
-import com.manager.appmanager.service.UserFileService;
+import com.manager.appmanager.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -26,14 +24,18 @@ public class FileController {
     private final ImageDataService imageDataService;
     private final ImageDataRepository imageDataRepository;
     private final UserFileRepository userFileRepository;
+    private final ExportService exportService;
+    private final ImportService importService;
 
     @Autowired
-    public FileController(StorageService storageService, UserFileService userFileService, ImageDataService imageDataService, ImageDataRepository imageDataRepository, UserFileRepository userFileRepository) {
+    public FileController(StorageService storageService, UserFileService userFileService, ImageDataService imageDataService, ImageDataRepository imageDataRepository, UserFileRepository userFileRepository, ExportService exportService, ImportService importService) {
         this.storageService = storageService;
         this.userFileService = userFileService;
         this.imageDataService = imageDataService;
         this.imageDataRepository = imageDataRepository;
         this.userFileRepository = userFileRepository;
+        this.exportService = exportService;
+        this.importService = importService;
     }
 
 
@@ -53,6 +55,21 @@ public class FileController {
 
 
     }
+
+    @GetMapping("/files/export")
+    public ResponseEntity<Resource>  exportString() throws Exception {
+         exportService.zipAllCsvFiles();
+        Resource file = storageService.exportAsResource();
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+
+    }
+
+    @PostMapping(value = "/files/import", consumes = "multipart/form-data")
+    public void uploadMultipart(@RequestParam("file") MultipartFile file) throws IOException {
+        importService.determineRepositoryAndEntityClassToUseAndImportCsvToDb(file);
+    }
+
 
     @DeleteMapping("/files/user/{userId}/app/{appId}/file/{fileId}")
     public void uploadFileToAppBelongingToUser(@PathVariable int userId, @PathVariable int appId, @PathVariable int fileId) throws NotFoundException, IOException {

@@ -34,20 +34,13 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private final UserRepository userRepository;
     private final CustomUserDetailsService customUserDetailsService;
     private final ObjectMapper objectMapper;
 
-    public WebSecurityConfig(UserRepository userRepository, CustomUserDetailsService customUserDetailsService,
-                             ObjectMapper objectMapper) {
-        this.userRepository = userRepository;
+    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService, ObjectMapper objectMapper) {
         this.customUserDetailsService = customUserDetailsService;
         this.objectMapper = objectMapper;
     }
-
-
-
-
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -86,48 +79,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
     }
 
-//    private void loginSuccessHandler(
-//            HttpServletRequest request,
-//            HttpServletResponse response,
-//            Authentication authentication) throws IOException {
-//        System.out.println("udalo sie");
-//        response.setStatus(HttpStatus.OK.value());
-//        objectMapper.writeValue(response.getWriter(), "Yayy you logged in!");
-//    }
-//
-//    private void loginFailureHandler(
-//            HttpServletRequest request,
-//            HttpServletResponse response,
-//            AuthenticationException e) throws IOException {
-//
-//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//        response.setContentType("application/json");
-//        System.out.println("wyjebalem sie ");
-//        objectMapper.writeValue(response.getWriter(), "{\"xd\": \"xd\"}");
-//    }
-
     private AuthenticationSuccessHandler successHandler() {
-        return new AuthenticationSuccessHandler() {
-            @Override
-            public void onAuthenticationSuccess(HttpServletRequest httpServletRequest,
-                                                HttpServletResponse httpServletResponse, Authentication authentication)
-                    throws IOException, ServletException {
-                httpServletResponse.getWriter().append(objectMapper.writeValueAsString(authentication.getAuthorities()));
-                httpServletResponse.setStatus(200);
-          }
-        };
+        return (httpServletRequest, httpServletResponse, authentication) -> {
+            httpServletResponse.getWriter().append(objectMapper.writeValueAsString(authentication.getAuthorities()));
+            httpServletResponse.setStatus(200);
+      };
     }
 
     private AuthenticationFailureHandler failureHandler() {
-        return new AuthenticationFailureHandler() {
-            @Override
-            public void onAuthenticationFailure(HttpServletRequest httpServletRequest,
-                                                HttpServletResponse httpServletResponse, AuthenticationException e)
-                    throws IOException, ServletException {
-
-                httpServletResponse.getWriter().append("Authentication failure");
-                httpServletResponse.setStatus(401);
-            }
+        return (httpServletRequest, httpServletResponse, e) -> {
+            httpServletResponse.getWriter().append("Authentication failure");
+            httpServletResponse.setStatus(401);
         };}
 
     private void logoutSuccessHandler(

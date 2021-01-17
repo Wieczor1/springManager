@@ -18,7 +18,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
@@ -26,10 +25,14 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 public class FileSystemStorageService implements StorageService {
 
 	private final Path rootLocation;
+	private final Path exportLocation;
+	private final Path exportZipLocation;
 
 	@Autowired
 	public FileSystemStorageService(StorageProperties properties) {
 		this.rootLocation = Paths.get(properties.getLocation());
+		this.exportLocation = Paths.get(properties.getExportLocation());
+		this.exportZipLocation = Paths.get(properties.getExportZipLocation());
 	}
 
 	@Override
@@ -95,8 +98,34 @@ public class FileSystemStorageService implements StorageService {
 	}
 
 	@Override
+	public Resource exportAsResource() {
+		try {
+			Path file = exportZipLocation.resolve("export.zip");
+			Resource resource = new UrlResource(file.toUri());
+			if (resource.exists() || resource.isReadable()) {
+
+				return resource;
+			}
+			else {
+				throw new StorageFileNotFoundException(
+						"Could not read file: " );
+
+			}
+		}
+		catch (MalformedURLException e) {
+			throw new StorageFileNotFoundException("Could not read file: " + e);
+		}
+	}
+
+	@Override
 	public void deleteAll() {
 		FileSystemUtils.deleteRecursively(rootLocation.toFile());
+	}
+
+	@Override
+	public void deleteAllExported() {
+		FileSystemUtils.deleteRecursively(exportLocation.toFile());
+		FileSystemUtils.deleteRecursively(exportZipLocation.toFile());
 	}
 
 	@Override
@@ -118,6 +147,8 @@ public class FileSystemStorageService implements StorageService {
 	public void init() {
 		try {
 			Files.createDirectories(rootLocation);
+			Files.createDirectories(exportLocation);
+			Files.createDirectories(exportZipLocation);
 		}
 		catch (IOException e) {
 			throw new StorageException("Could not initialize storage", e);
