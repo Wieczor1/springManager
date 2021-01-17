@@ -91,26 +91,29 @@ public class AppController {
         return locationRepository.findAll();
     }
 
-    @PutMapping("/apps/{appId}/location/{locId}")
-    void editLocationFromApp(@PathVariable int appId, @PathVariable int locId, @Valid @RequestBody Location newLocation) throws NotFoundException {
-        App app = repository.findById(appId).orElseThrow(() -> new NotFoundException(appId));
+    @GetMapping("/apps/location/{locId}")
+    Location getLocationById(@PathVariable int locId) throws NotFoundException {
+        return locationRepository.findById(locId).orElseThrow(() -> new NotFoundException(locId));
+
+    }
+
+    @PutMapping("/apps/location/{locId}")
+    void editLocationFromApp(@PathVariable int locId, @Valid @RequestBody Location newLocation) throws NotFoundException {
         locationRepository.findById(locId).map(
                 location -> {
                     location.setCity(newLocation.getCity());
                     location.setCountry(newLocation.getCountry());
-                    location.setStreet(newLocation.getCity());
+                    location.setStreet(newLocation.getStreet());
                     location.setStreetNumber(newLocation.getStreetNumber());
                     return locationRepository.save(location);
                 }).orElseThrow(() -> new NotFoundException(locId));
-        repository.save(app);
     }
 
-    @DeleteMapping("/apps/{appId}/location/{locId}")
-    void removeLocationFromApp(@PathVariable int appId, @PathVariable int locId) throws NotFoundException {
-        App app = repository.findById(appId).orElseThrow(() -> new NotFoundException(appId));
+    @DeleteMapping("/apps/location/{locId}")
+    void removeLocationFromApp(@PathVariable int locId) throws NotFoundException {
         Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException(locId));//TODO exception uzwgledni tez klase ale to moze kiedys
-        app.removeLocation(location);
-        repository.save(app);
+        location.getApp().removeLocation(location);
+        locationRepository.delete(location);
     }
 
     @GetMapping("/apps/{appId}/images")

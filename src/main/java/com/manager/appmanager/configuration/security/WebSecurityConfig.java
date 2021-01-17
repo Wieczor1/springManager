@@ -48,6 +48,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors();
             http.csrf().disable() //We don't need CSRF for this example
                 .authorizeRequests().antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/username/*").permitAll()
+                .antMatchers("/register").permitAll()
                 .anyRequest().authenticated()// all request requires a logged in user
 
                 .and()

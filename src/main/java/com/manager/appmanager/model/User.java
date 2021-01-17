@@ -1,6 +1,7 @@
 package com.manager.appmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 import lombok.*;
@@ -35,7 +36,7 @@ public class User implements Exportable, Importable<User> { //TODO walidacja
     private String firstName;
     @Column(name = "last_name", nullable = false)
     private String lastName;
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
     @Column(name = "username", nullable = false, unique = true)
     private String username;
@@ -106,5 +107,14 @@ public class User implements Exportable, Importable<User> { //TODO walidacja
 
 
 
+    }
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
+
+    @JsonProperty
+    public void setPassword(final String password) {
+        this.password = password;
     }
 }

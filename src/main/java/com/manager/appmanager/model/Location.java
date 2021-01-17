@@ -20,7 +20,7 @@ public class Location implements Exportable, Importable<Location> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
+    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = { CascadeType.ALL})
     @JoinColumn(name = "id_app")
 
 //    @OnDelete(action = OnDeleteAction.CASCADE) TODO KASKADOWE USUWANIE WSZEDZIE ZEBY DANE NIE WISIALY!!!!!!!!!!!!!! wazne

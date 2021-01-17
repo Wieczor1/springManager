@@ -51,7 +51,7 @@ public class UserController {
         return repository.findById(id).orElseThrow(() -> new NotFoundException(id));
     }
 
-    @PostMapping("/users")
+    @PostMapping("/register")
     User newUser(@Valid @RequestBody User newUser) throws MessagingException {
         User user = repository.save(newUser);
         emailService.sendMail(newUser.getEmail(), "Registration", "Hello, " + newUser.getUsername() +
@@ -83,6 +83,11 @@ public class UserController {
         App appToAdd = appRepository.findById(appId).orElseThrow(() -> new NotFoundException(userId));
         user.addApp(appToAdd);
         repository.save(user);
+    }
+
+    @PostMapping("/username/{username}")
+    boolean checkIfUsernameExists(@PathVariable String username) throws NotFoundException {
+        return repository.existsByUsername(username);
     }
 
 

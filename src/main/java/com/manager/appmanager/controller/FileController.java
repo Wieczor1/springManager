@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 
 @RestController
 @CrossOrigin("http://localhost:4200")
@@ -74,7 +75,13 @@ public class FileController {
     @DeleteMapping("/files/user/{userId}/app/{appId}/file/{fileId}")
     public void uploadFileToAppBelongingToUser(@PathVariable int userId, @PathVariable int appId, @PathVariable int fileId) throws NotFoundException, IOException {
         UserFile file = userFileRepository.findById(fileId).orElseThrow(() -> new NotFoundException(fileId));
-        storageService.delete(file.getFilename().substring(file.getFilename().lastIndexOf('/')+1));
+        try{
+            storageService.delete(file.getFilename().substring(file.getFilename().lastIndexOf('/')+1));
+        }
+        catch (NoSuchFileException e){
+            e.printStackTrace();
+
+        }
         userFileService.removeUserFile(userId, appId, file);
 
 
@@ -97,7 +104,14 @@ public class FileController {
     @DeleteMapping("/files/images/{imageId}")
     public void deleteImage(@PathVariable int imageId) throws NotFoundException, IOException {
         ImageData imageData = imageDataRepository.findById(imageId).orElseThrow(() -> new NotFoundException(imageId));
-        storageService.delete(imageData.getImageUrl().substring(imageData.getImageUrl().lastIndexOf('/')+1));
+        try{
+            storageService.delete(imageData.getImageUrl().substring(imageData.getImageUrl().lastIndexOf('/')+1));
+
+        }
+        catch (NoSuchFileException e){
+            e.printStackTrace();
+
+        }
         imageDataRepository.deleteById(imageId);
     }
 }
