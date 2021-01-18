@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
+import java.util.List;
 
 @RestController
 @CrossOrigin("http://localhost:4200")
@@ -113,5 +114,10 @@ public class FileController {
 
         }
         imageDataRepository.deleteById(imageId);
+    }
+
+    @GetMapping("/files")
+    List<UserFile> getFiles(){
+        return userFileRepository.findAll();
     }
 }
